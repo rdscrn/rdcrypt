@@ -1,6 +1,6 @@
 from Crypto.Protocol.KDF import PBKDF2
 
-def genkey(password,saltf="salt"):
+def genkey(password,saltf="salt.salt"):
 	f = open(saltf,"rb")
 	salt = f.read()
 	f.close()

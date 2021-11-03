@@ -6,7 +6,7 @@ import sys
 from key import genkey
 
 
-def fencryption(data, output_file = 'encrypted.bin', key = "1234", append = False, salt="salt"):
+def fencryption(data, output_file = 'encrypted.bin', key = "", append = False, salt="salt.salt"):
 	key = genkey(key,salt)
 	cipher = AES.new(key, AES.MODE_CBC)
 	ciphered_data = cipher.encrypt(pad(data, AES.block_size))
@@ -20,7 +20,7 @@ def fencryption(data, output_file = 'encrypted.bin', key = "1234", append = Fals
 
 	return sys.getsizeof(ciphered_data)-16-1
 
-def fdecryption(input_file = 'encrypted.bin', key = "1234", salt="salt"):
+def fdecryption(input_file = 'encrypted.bin', key = "", salt="salt.salt"):
 	key = genkey(key,salt)
 
 	file_in = open(input_file, "rb")
@@ -30,7 +30,7 @@ def fdecryption(input_file = 'encrypted.bin', key = "1234", salt="salt"):
 	cipher = AES.new(key, AES.MODE_CBC, iv=iv)
 	return unpad(cipher.decrypt(ciphered_data), AES.block_size)
 
-def fblockdecryption(head=0, block=None,input_file = 'encrypted.bin', key = "1234", salt="salt"):
+def fblockdecryption(head=0, block=None,input_file = 'encrypted.bin', key = "", salt="salt.salt"):
 	if block is None:
 		raise Exception("Datalength must be specified")
 	key = genkey(key, salt)

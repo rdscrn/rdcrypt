@@ -1,3 +1,3 @@
-pyinstaller --noconfirm --onefile --windowed --icon "redcrypt_bTc_icon.ico" --add-data "guitest.ui;." --hidden-import "pygubu.builder.tkstdwidgets" --hidden-import "pygubu.builder.ttkstdwidgets" --hidden-import "pygubu.builder.widgets.dialog" --hidden-import "pygubu.builder.widgets.editabletreeview" --hidden-import "pygubu.builder.widgets.scrollbarhelper" --hidden-import "pygubu.builder.widgets.scrolledframe" --hidden-import "pygubu.builder.widgets.tkscrollbarhelper" --hidden-import "pygubu.builder.widgets.tkscrolledframe" --hidden-import "pygubu.builder.widgets.pathchooserinput" "GUI.py"
+pyinstaller --noconfirm --onefile --windowed --icon "redcrypt_bTc_icon.ico" --add-data "redcrypt_bTc_icon.ico;." "GUI.py"
 
 pause
