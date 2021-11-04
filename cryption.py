@@ -42,11 +42,3 @@ def fblockdecryption(head=0, block=None,input_file = 'encrypted.bin', key = "", 
 
 	cipher = AES.new(key, AES.MODE_CBC, iv=iv)
 	return unpad(cipher.decrypt(ciphered_data), AES.block_size)
-
-if __name__ == "__main__":
-	"""
-	with open("a\\sdfsdf.txt", "rb") as file:
-		fencryption(file.read())
-	"""
-	with open("out.txt", "wb") as file:
-		file.write(fblockdecryption(32,48))
