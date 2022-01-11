@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 import tkinter as tk
 import tkinter.ttk as ttk
 from datablocks import *
@@ -129,9 +130,7 @@ class MainMenu:
             tk.Label(self.taskFrame,text="Add files or directories:").pack()
             self.adF = AdderFrame(self.taskFrame)
             
-            tk.Button(self.taskFrame, text="Generate new database", command= self.commitA, background="green").pack(fill='x', pady=10)
-        else:
-            msg("You shouldn't be here")
+            tk.Button(self.taskFrame, text="Append to database", command= self.commitA, background="green").pack(fill='x', pady=10)
         
         self.diag = tk.StringVar(root,"Diagnostics...")
         tk.Label(self.taskFrame, textvariable=self.diag, relief="raised", background="white").pack(fill='x')
@@ -142,7 +141,7 @@ class MainMenu:
     
     def commitD(self):
         try:
-            TreeWindow(self.root, dbb=self.databEnt.get(), bin=self.binEnt.get(), salt=self.saltEnt.get(), key=self.passEnt.get())
+            TreeWindow(self.root, dbb=self.databEnt.get(), bin=self.binEnt.get(), salt=self.saltEnt.get(), key=self.passEnt.get(), msg=self.msg)
         except Exception as e:
             self.msg(e)
     
@@ -185,9 +184,9 @@ class MainMenu:
             self.data["dbb"] = self.databEnt.get()
             self.data["bin"] = self.binEnt.get()
             self.data["salt"] = self.saltEnt.get()
+            self.msg("Encrypted binary and database appended!")
         except Exception as e:
             self.msg(e)
-        self.msg("Encrypted binary and database appended!")
 
 class TreeWindow:
     def __init__(self, root=None, **kwargs):
@@ -216,6 +215,8 @@ class TreeWindow:
         self.scrollbar.pack(side="right", fill=tk.Y)
         self.extractdirectory = PickerFrame(self.treewindow, btext="Extraction directory" ,dir=True)
         self.extractbutton.pack()
+
+        self.msg = kwargs["msg"]
     
     def treepopulate(self, dbptr, parid=''):
         for item in dbptr.dirs:
@@ -242,20 +243,26 @@ class TreeWindow:
                 raise Exception("Wrong usage of extractFile.")
             return fblockdecryption(head=dbptr.head, block=dbptr.size, input_file = self.binary, key = self.key, salt=self.salt)
 
+        hazard = False
+
         for i in get_checked():
             ip = i
             route=self.tree.item(ip)['text']
             while self.tree.parent(ip) != '':
                 ip = self.tree.parent(ip)
-                route = self.tree.item(ip)['text']+ '/' + route
+                route = self.tree.item(ip)['text']+ '\\' + route
             edir = self.extractdirectory.get()
             if edir != '':
-                route = self.extractdirectory.get() + '/' + route
+                route = self.extractdirectory.get() + '\\' + route
             else:
-                route = os.getcwd() + '/' + route
+                route = os.getcwd() + '\\' + route
 
+            print(route)
             if os.path.exists(route):
-                print("Overwrite protection.")
+                if not hazard:
+                    hazard = True
+                logging.basicConfig(filename="hazards.log", format="%(asctime)s -> %(message)s")
+                logging.warning("Extraction overwrite hazard! Check for " + route)
                 continue
 
             try:
@@ -265,9 +272,12 @@ class TreeWindow:
 
             with open(route,"wb") as ou:
                 ou.write(decryptFile(self.ptrholder[i]))
+        
+        if hazard:
+            self.msg("Overwrite hazards countered! Check " + os.getcwd() + "\\hazards.log for detailed info.")
 
 class PickerFrame:
-    def __init__(self, root, btext="Open", filetypes=[("all files", "*.*")], termin=False, dir=False, ptext=None):
+    def __init__(self, root, btext="Open", filetypes=[("all files", "*.*")], termin=False, dir=False, ptext=None, defun=None, id=None):
         self.holder = tk.Frame(root)
         self.dir = dir
         self.pathtext = tk.StringVar()
@@ -284,6 +294,8 @@ class PickerFrame:
             self.destroyerbutton.pack(side="left")
         self.pathtextbox.pack(side="left", expand="true", fill="x")
         self.pathbutton.pack(side="right")
+        self.defun=defun
+        self.id=id
 
     def callback(self):
         if self.dir:
@@ -293,6 +305,8 @@ class PickerFrame:
     
     def destroy(self):
         self.holder.destroy()
+        if self.defun != None:
+            self.defun(self.id)
     
     def get(self):
         return self.pathtext.get()
@@ -301,8 +315,9 @@ class PickerFrame:
         self.pathtext.set(entry)
 
 class AdderFrame:
-    pfholder = []
     def __init__(self, root):
+        self.pfholder = []
+        
         self.buttons = self.buttons = tk.Frame(root)
         self.holder = self.holder = tk.Frame(root)
         self.dirbutton = tk.Button(self.buttons, text="Add directory", command= self.calldir)
@@ -314,16 +329,20 @@ class AdderFrame:
         self.holder.pack(expand="true", fill="x")
     
     def callfile(self):
-        self.pfholder.append(PickerFrame(self.holder, btext="Select File", termin=True))
+        self.pfholder.append(PickerFrame(self.holder, btext="Select File", termin=True, defun=self.nullItem, id = len(self.pfholder)-1 ))
     
     def calldir(self):
-        self.pfholder.append(PickerFrame(self.holder, btext="Select Directory", termin=True, dir=True))
+        self.pfholder.append(PickerFrame(self.holder, btext="Select Directory", termin=True, dir=True, defun=self.nullItem, id = len(self.pfholder)-1 ))
+    
+    def nullItem(self,index):
+        self.pfholder[index]=None
     
     def getlist(self):
         ret = []
         for item in self.pfholder:
-            if os.path.exists(item.get()):
+            if item != None and os.path.exists(item.get()):
                 ret.append(item.get())
+        #print("%d %d"%(len(self.pfholder),len(ret)))
         return ret
 
 if __name__ == '__main__':

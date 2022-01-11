@@ -47,7 +47,9 @@ def dirdatablockandbingen(folderordir="test.txt", datablockn="datablock.dbb", bi
 
     if os.path.isfile(folderordir):
         bfilnames = [node.name for node in db.files]
-        if folderordir in bfilnames:
+        print(bfilnames)
+        print(os.path.basename(folderordir))
+        if os.path.basename(folderordir) in bfilnames:
             raise Exception("File overwrite hazard! Check for " + folderordir)
         else:
             with open(folderordir,"rb") as f:
@@ -55,7 +57,7 @@ def dirdatablockandbingen(folderordir="test.txt", datablockn="datablock.dbb", bi
     else:
         bdirnames = [node.name for node in db.dirs]
         try:
-            ind = bdirnames.index(folderordir)
+            ind = bdirnames.index(os.path.basename(folderordir))
         except ValueError:
             db.dirs.append(Dir(os.path.basename(folderordir),[],[]))
             ind = -1
