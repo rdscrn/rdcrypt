@@ -13,3 +13,5 @@ Basically:
 It is much faster than rar because we don't decrypt the whole database all over again
 
 File/directory deletion is not implemented. The intention is creating append only databases.
+
+[Download lastest WIN build from here](https://github.com/rdscrn/redcrypt/releases/download/v1.1/redcrypt.v1_1.exe)
